@@ -1,4 +1,4 @@
-Rainbowstar = class {}
+Rainbowstar = Class {}
 
 function Rainbowstar:init()
     self.image = textures['rainbowstar']
@@ -15,7 +15,7 @@ function Rainbowstar:init()
 
 end
 
-function Rainbowstar:update()
+function Rainbowstar:update(dt)
     self.dy = self.dy + SPEED * dt
     self.y = self.y + self.dy
 end
@@ -26,16 +26,13 @@ function Rainbowstar:render()
     end
 end
 
-function Rainbowstar:hit()
+function Rainbowstar:hit(player)
 
     if self.y + self.height >= player.y - player.height and 
-    self.x + self.width <= player.x - player.width then
+    self.x + self.width >= player.x - player.width then
      self.hit = true
      self.removed = true
  end
-
     self.removed = true
-    params.scored = params.scored + 999
-    
 end
 

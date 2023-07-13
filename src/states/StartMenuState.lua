@@ -1,27 +1,37 @@
-StartMenuState = class{__includes = BaseState}
+StartMenuState = Class{__includes = BaseState}
 
 local selected = 1
 
+
+function StartMenuState:enter(params)
+	self.highscores = params.highscores
+end
+
 function StartMenuState:update(dt)
     print('menu')
-    --play or highscores
-    if love.keyboard.wasPressed('up') or love.keyboard.wasPressed('down') then
-        selected = selected == 1 and 2 or 1 and 3 or 1 or 2 
+    --play or highscores or skins
+    if love.keyboard.wasPressed('down') then
+        selected = (selected % 3) + 1
     end
+
 
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
 
         if selected == 1 then
+            sounds['select']:play()
             stateMachine:change('serve', {
                 highscores = self.highScores
             })
-        --elseif selected == 2
-          --  stateMachine:change('highscores', {
-            --    highscores = self.highscores
-            --})
-        --elseif selected == 3 then stateMachine:change('skin', {
-            -- highscores = self.highscores
-        --})
+        elseif selected == 2 then
+            sounds['select']:play()
+            stateMachine:change('highscores', {
+               highscores = self.highscores
+            })
+        elseif selected == 3 then 
+            sounds['select']:play()
+            stateMachine:change('skin', {
+             highscores = self.highscores
+            })
         end
 
     end 

@@ -1,4 +1,4 @@
-Star = class{}
+Star = Class{}
 
 function Star:init()
     self.image = textures['yellowstar']
@@ -26,13 +26,12 @@ function Star:render()
     end
 end
 
-function Star:hit()
+function Star:hit(player)
     if self.y + self.height >= player.y - player.height and 
-    self.x + self.width <= player.x - player.width then
+     self.x + self.width >= player.x - player.width then
      self.hit = true
      self.removed = true
- end
+    end
 
     self.removed = true
-    params.scored = params.scored + 1
 end

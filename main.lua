@@ -2,7 +2,7 @@ require 'src/Dependencies'
 
 local background_scroll = 0
 
-function love.load()
+function love.load(params)
 
     if arg[#arg] == '-debug' then require('mobdebug').start() end
 
@@ -25,15 +25,18 @@ function love.load()
     stateMachine = StateMachine {
 		['start-menu'] = function() return StartMenuState() end,
         ['serve'] = function() return ServeState() end,
+        ['skin'] = function() return SkinState()end,
+        ['highscores'] = function() return HighscoreState() end,
         ['play'] = function() return PlayState() end,
-        --['pause'] = function() return PauseState() end,
-      -- ['win'] = function() return WinState() end, 
-        --['lose'] = function() return LoseState()end,
-        --['skin'] = function() return SkinState()end
-        --['highscores'] = function() return HighScoresState() end,
+        ['enterhighscores'] = function() return EnterHighscoreState() end,
+        ['win'] = function() return WinState() end, 
+        ['lose'] = function() return LoseState()end
+        
 	}
 
-    stateMachine:change('start-menu')
+    stateMachine:change('start-menu', {
+        highscores = params.highScores
+    })
 
 
     fonts = {
@@ -44,23 +47,36 @@ function love.load()
     }
 
     textures = {
-        ['background'] = love.graphics.newImage('graphics/starrysky.png'),
+        ['background'] = love.graphics.newImage('graphics/starrysky-01.png'),
         ['yellowstar'] = love.graphics.newImage('graphics/star.png'),
         ['rainbowstar'] = love.graphics.newImage('graphics/rainbowstar.png'),
         ['bricks'] = love.graphics.newImage('graphics/bricks.png'),
-        ['rocket'] = love.graphics.newImage('graphics/rockets.png'),
         ['hearts'] = love.graphics.newImage('graphics/hearts.png')
     }
+    
 
     quads = {
         ['bricks'] = GenerateQuads(textures['bricks'], 32, 16),
-        ['player'] = GenerateQuads(textures['rocket'], 79, 90),
         ['hearts'] = GenerateQuads(textures['hearts'], 16, 16)
+    }
+
+    skins = {
+        ['rocket1'] = love.graphics.newImage('graphics/rocket.png'),
+        ['rocket2'] = love.graphics.newImage('graphics/rockets2.png'),
+        ['rocket3'] = love.graphics.newImage('graphics/rockets3.png'),
+        ['rocket4'] = love.graphics.newImage('graphics/rockets4.png')
+
     }
 
    
 
-    sounds = {}
+    sounds = {
+        ['select'] = love.audio.newSource('sounds/arkanoid6_sounds_select.wav', 'static'),
+        ['lose'] = love.audio.newSource('sounds/lose.mp3', 'static'),
+        ['star'] = love.audio.newSource('sounds/star.wav', 'static'),
+        ['brickhit'] = love.audio.newSource('sounds/brickhit.wav', 'static'),
+        ['win'] = love.audio.newSource('sounds/win.wav', 'static')
+    }
 
     love.keyboard.keysPressed = {}
 
@@ -94,10 +110,25 @@ function love.keyboard.wasPressed(key)
     end
 end
 
+--[[function renderHealth(health)
+	local healthX = 20
+	
+	for i = 1, health do
+		love.graphics.draw(textures['hearts'], quads['hearts'][8], healthX, 5)
+		healthX = healthX + 12
+	end
+	
+	for i = 1, 3 - health do
+		love.graphics.draw(textures['hearts'], quads['hearts'][1], healthX, 5)
+		healthX = healthX + 12
+	end
+end--]]
+
+
 function love.draw()
     push:start()
 
-    love.graphics.draw(textures['background'], 0, -background_scroll)
+    love.graphics.draw(textures['background'], 0, - background_scroll)
 
     stateMachine:render()
 
@@ -111,4 +142,52 @@ function displayFPS()
     love.graphics.setColor(0/255, 255/255, 0/255, 255/255)
     love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
     love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
+end
+
+
+function renderScore(score)
+	love.graphics.setFont(fonts['mid'])
+	love.graphics.print('Score: ', VIRTUAL_WIDTH - 100, 5)
+	love.graphics.printf(tostring(score), VIRTUAL_WIDTH - 50, 5, 40, 'right')
+end
+
+
+function loadHighscores()
+	love.filesystem.setIdentity('catchthestars')
+	
+	if not love.filesystem.getInfo('catchthestars.lst') then
+		local scores = ''
+		for index = 10, 1, -1 do
+			scores = scores .. 'NAM\n'
+			scores = scores .. 0 .. '\n'
+		end
+		
+		love.filesystem.write('catchthestars.lst', scores)
+	end
+	
+	local name = true
+	local currentName = nil
+	local counter = 1
+	
+	local scores = {}
+	
+	for index = 1, 10 do
+		scores[index] = {
+			name = nil,
+			score = nil
+		}
+	end
+	
+	for line in love.filesystem.lines('catchthestars.lst') do
+		if name then
+			scores[counter].name = string.sub(line, 1, 3)
+		else
+			scores[counter].score = tonumber(line)
+			counter = counter + 1
+		end
+		
+		name = not name
+	end
+	
+	return scores
 end

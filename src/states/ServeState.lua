@@ -1,32 +1,46 @@
-ServeState = class {__includes = BaseState}
+ServeState = Class {__includes = BaseState}
 
 
-function ServeState:init(params)
+function ServeState:enter(params)
 
-   self.health = params.health
-   self.player = params.player
    self.highscores = params.highscores
+   self.health = params.health
    self.score = params.score
+   self.bricks = params.bricks
+   self.star = params.star
+   self.rainbowstar = params.rainbowstar
+
+   self.player = Player()
 
 end
 
 function ServeState:update(dt)
-    if love.keyboard.keypressed('enter') or love.keyboard.render('return') then
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
         StateMachine:change('play', {
             player = self.player,
             health = self.health,
             score = self.score,
+            highscores = self.highscores,
+            bricks = self.bricks,
+            star = self.star,
+            rainbowstar = self.rainbowstar
+        })
+    end
+
+    if love.keyboard.wasPressed('q') then
+        stateMachine:change('start-menu', {
             highscores = self.highscores
         })
     end
     
+    self.player:update(dt)
   
 end
 
 function ServeState:render()
     self.player:render()
 
-    renderscore(self.score)
-    renderHealth(self.health)
+    renderScore(self.score)
+    --renderHealth(self.health)
 
 end

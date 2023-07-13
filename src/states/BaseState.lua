@@ -1,4 +1,4 @@
-BaseState = class{}
+BaseState = Class{}
 
 function BaseState:init() end
 function BaseState:enter() end
