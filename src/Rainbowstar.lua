@@ -8,31 +8,31 @@ function Rainbowstar:init()
     self.x = math.random(self.width, VIRTUAL_WIDTH - self.width)
     self.y = 0
 
-    self.dy = 3
+    self.dy = 2
 
-    self.removed = false
-    self.timer = 0
-
+    self.remove = false
 end
 
 function Rainbowstar:update(dt)
     self.dy = self.dy + SPEED * dt
     self.y = self.y + self.dy
-end
 
-function Rainbowstar:render()
-    if not self.remove then
-        love.graphics.draw(self.image, self.x, self.y)
+    if self.y + self.height  > VIRTUAL_HEIGHT then 
+        self.remove = true
     end
 end
 
-function Rainbowstar:hit(player)
 
-    if self.y + self.height >= player.y - player.height and 
-    self.x + self.width >= player.x - player.width then
-     self.hit = true
-     self.removed = true
- end
-    self.removed = true
+function Rainbowstar:hit(player)
+    if self.x + self.width < player.x or self.x > player.x + player.width then
+        return false
+    elseif self.y + self.height < player.y or self.y > player.y + player.height then
+        return false
+    else
+        return true
+    end
 end
 
+function Rainbowstar:render()
+    love.graphics.draw(self.image, self.x, self.y)
+end

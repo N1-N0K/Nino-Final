@@ -4,23 +4,20 @@ function PlayState:enter(params)
     self.player = Player()
     self.bricks = params.bricks or {}
     self.health = params.health
-    self.score = params.score
-    self.highscores = params.highscores
+    self.score = 0
+    self.highscores = params.highscores or {}
     self.star = params.star or {}
-    self.rainbowstar = params.rainbowstar or {}
+    self.rainbowstar =  params.rainbowstar or {}
+
+    self.timer = 0
+    self.bricktimer = 0
 
     self.paused = false
 
-    self.timer = 0
-    self.timerbrick = 0
     self.chance = math.random(1, 100)
 end
 
 function PlayState:update(dt)
-    print('playstate')
-    self.timer = self.timer + dt
-    self.timerbrick = self.timerbrick + dt
-
     if self.paused then 
         if love.keyboard.wasPressed('space') then
             self.paused = false
@@ -32,22 +29,25 @@ function PlayState:update(dt)
         return
     end
 
-    --insert objects in table
+    -- Update timers
+    self.timer = self.timer + dt
+    self.bricktimer = self.bricktimer + dt
 
-    if self.timerbrick >= 2 then
-        table.insert(self.bricks, Brick(x, y))
-        self.timer = 0 
+    -- Insert objects into tables
+    if self.bricktimer >= 3 then
+        table.insert(self.bricks, Brick())
+        self.bricktimer = 0 
     end
 
-    if self.timer >= 4 and self.chance % 11 == 0 then
-        table.insert(self.rainbowstar, Rainbowstar(x, y))
+    if self.chance % 5 == 0 and self.timer >= 4 then
+        table.insert(self.rainbowstar, Rainbowstar())
         self.timer = 0 
-    else 
-        table.insert(self.star, Star(x, y))
+    elseif self.timer >= 4 then
+        table.insert(self.star, Star())
         self.timer = 0
     end
 
-    -- Updating objects
+    -- Update objects
     for k, star in pairs(self.star) do
         if not star.remove then
             star:update(dt)
@@ -68,19 +68,19 @@ function PlayState:update(dt)
 
     self.player:update(dt)
 
-    -- Hitting objects
+    -- Handle object collisions
     for k, star in pairs(self.star) do
-        if star.hit then
-            self.score = self.score + 3
-            table.remove(self.star, k)
+        if star:hit(self.player) then
+            self.score = self.score + 1
+            star.remove = true
             sounds['star']:play()
         end
     end
 
+
     for k, rainbowstar in pairs(self.rainbowstar) do
-        if rainbowstar.hit then
+        if rainbowstar:hit(self.player) then
             self.score = self.score + 999
-            table.remove(self.rainbowstar, k)
             sounds['win']:play()
             stateMachine:change('win', {
                 score = self.score,
@@ -90,25 +90,51 @@ function PlayState:update(dt)
     end
 
     for k, brick in pairs(self.bricks) do
-        if brick.hit then
+        if brick:hit(self.player) then
             self.health = self.health - 1
             sounds['brickhit']:play()
             table.remove(self.bricks, k)
         end
     end
 
-    if self.health == 0 then
+    --if object goes beyond screen
+
+    for k, star in pairs(self.star) do
+        if star.remove == true then
+            table.remove(self.star, k)
+        end
+    end
+
+    for k, rainbowstar in pairs(self.rainbowstar) do
+        if rainbowstar.remove == true then
+            table.remove(self.rainbowstar, k)
+        end
+    end
+
+
+    for k, brick in pairs(self.bricks) do 
+        if brick.remove == true then
+            table.remove(self.bricks, k)
+        end
+    end
+
+    -- Check for game over
+    if self.health <= 0 then
         sounds['lose']:play()
         stateMachine:change('lose', {
             highscores = self.highscores,
             score = self.score
         })
     end
+    
+    -- Quit game
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
+    end
 end
 
 function PlayState:render()
-    -- Rendering objects
-
+    -- Render objects
     for k, rainbowstar in pairs(self.rainbowstar) do
         rainbowstar:render()
     end
@@ -116,16 +142,17 @@ function PlayState:render()
     for k, star in pairs(self.star) do
         star:render()
     end
-    
 
     for k, brick in pairs(self.bricks) do 
-        if self.timerbrick then
-            brick:render()
-        end
+        brick:render()
     end
 
     renderScore(self.score)
-    -- renderHealth(self.health)
+    renderHealth(self.health)
 
     self.player:render()
+
+    love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
+    love.graphics.setFont(fonts['small'])
+    love.graphics.printf('Press space to pause the game.', 0, VIRTUAL_HEIGHT / 4 - 100, VIRTUAL_WIDTH, 'center')
 end

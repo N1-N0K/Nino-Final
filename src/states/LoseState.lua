@@ -6,14 +6,14 @@ function LoseState:enter(params)
 end
 
 function LoseState:update(dt)
-    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+	if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
 		local highscore = false
 		local scoreIndex = 0
 		
 		for index = 10, 1, -1 do
-			local score = self.highscores[index].score or 0
+			local score = self.highscores[index] or 0
 			if self.score > score then
-				highscoreIndex = index
+				scoreIndex = self.scoreIndex
 				highscore = true
 			end
 		end
@@ -22,17 +22,18 @@ function LoseState:update(dt)
 			stateMachine:change('enter-highscore', {
 				highscores = self.highscores,
 				score = self.score,
-				scoreIndex = highscoreIndex
+				scoreIndex = index
 			})
 		else
-			stateMachine:change('start', {
+			stateMachine:change('start-menu', {
 				highscores = self.highscores
 			})
 		end
 		
 	end
+	
+	
 end
-
 function LoseState:render()
     love.graphics.setFont(fonts['big'])
     love.graphics.printf('GAME OVER', 0, VIRTUAL_HEIGHT / 4, VIRTUAL_WIDTH, 'center')

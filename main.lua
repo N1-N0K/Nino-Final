@@ -28,16 +28,11 @@ function love.load(params)
         ['skin'] = function() return SkinState()end,
         ['highscores'] = function() return HighscoreState() end,
         ['play'] = function() return PlayState() end,
-        ['enterhighscores'] = function() return EnterHighscoreState() end,
+        ['enter-highscore'] = function() return EnterHighscoreState() end,
         ['win'] = function() return WinState() end, 
         ['lose'] = function() return LoseState()end
         
 	}
-
-    stateMachine:change('start-menu', {
-        highscores = params.highScores
-    })
-
 
     fonts = {
         ['big'] = love.graphics.newFont('fonts/font.ttf', 32),
@@ -75,12 +70,21 @@ function love.load(params)
         ['lose'] = love.audio.newSource('sounds/lose.mp3', 'static'),
         ['star'] = love.audio.newSource('sounds/star.wav', 'static'),
         ['brickhit'] = love.audio.newSource('sounds/brickhit.wav', 'static'),
-        ['win'] = love.audio.newSource('sounds/win.wav', 'static')
+        ['win'] = love.audio.newSource('sounds/win.wav', 'static'),
+        ['looping'] = love.audio.newSource('sounds/looping.mp3', 'static')
     }
+
+    sounds['looping']:setLooping(true)
+	sounds['looping']:play()
 
     love.keyboard.keysPressed = {}
 
-
+    stateMachine:change('start-menu', {
+        highscores = loadHighscores(),
+        
+        score = 0,
+        skin = skins['rocket1']
+    })
 end
 
 
@@ -110,21 +114,6 @@ function love.keyboard.wasPressed(key)
     end
 end
 
---[[function renderHealth(health)
-	local healthX = 20
-	
-	for i = 1, health do
-		love.graphics.draw(textures['hearts'], quads['hearts'][8], healthX, 5)
-		healthX = healthX + 12
-	end
-	
-	for i = 1, 3 - health do
-		love.graphics.draw(textures['hearts'], quads['hearts'][1], healthX, 5)
-		healthX = healthX + 12
-	end
-end--]]
-
-
 function love.draw()
     push:start()
 
@@ -137,20 +126,47 @@ function love.draw()
     push:finish()
 end
 
+-- FPS
+
 function displayFPS()
     love.graphics.setFont(fonts['small'])
     love.graphics.setColor(0/255, 255/255, 0/255, 255/255)
-    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
+    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 25)
     love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 end
 
-
+--score
 function renderScore(score)
 	love.graphics.setFont(fonts['mid'])
 	love.graphics.print('Score: ', VIRTUAL_WIDTH - 100, 5)
 	love.graphics.printf(tostring(score), VIRTUAL_WIDTH - 50, 5, 40, 'right')
 end
 
+
+--health
+
+function renderHealth(health)
+    local heartX = 5
+    local heartImage = textures['hearts']
+    local heartQuad = quads['hearts']
+  
+    for i = 1, health do
+        if heartImage and heartQuad then
+            love.graphics.draw(heartImage, heartQuad[8], heartX, 5)
+        end
+        heartX = heartX + 12
+    end
+  
+    for i = 1, 3 - health do
+        if heartImage and heartQuad then
+            love.graphics.draw(heartImage, heartQuad[1], heartX, 5)
+        end
+        heartX = heartX + 12
+    end
+end
+
+
+--highscores
 
 function loadHighscores()
 	love.filesystem.setIdentity('catchthestars')

@@ -4,30 +4,34 @@ function Brick:init()
     self.width = 32
     self.height = 16
 
-    self.x = math.random(0, VIRTUAL_WIDTH)
+    self.x = math.random(0, VIRTUAL_WIDTH - self.width)
     self.y = 0
 
     self.dy = 3
 
-    self.removed = false
-    self.hit = false
+    self.remove = false
 end
 
 function Brick:update(dt)
-    self.dy = self.dy + SPEED * dt
-    self.y = self.y + self.dy
+
+    self.y = self.y + SPEED * dt
+
+    if self.y + self.height  > VIRTUAL_HEIGHT then 
+        self.remove = true
+    end
+end
+
+
+function Brick:hit(player)
+    if self.x + self.width < player.x or self.x > player.x + player.width then
+        return false
+    elseif self.y + self.height < player.y or self.y > player.y + player.height then
+        return false
+    else
+        return true
+    end
 end
 
 function Brick:render()
-    if self.removed == false then 
-        love.graphics.draw(textures['bricks'], quads['bricks'][1])
-    end
-end
-
-function Brick:hit(player)
-    if self.y + self.height >= player.y - player.height and 
-       self.x + self.width >= player.x - player.width then
-        self.hit = true
-        self.removed = true
-    end
+    love.graphics.draw(textures['bricks'], quads['bricks'][1], self.x, self.y)
 end

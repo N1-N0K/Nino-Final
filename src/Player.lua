@@ -3,8 +3,7 @@ Player = Class {}
 
 function Player:init()
     
-    
-    self.skin = skins['rocket1']
+    self.skin = skin
     self.width = self.skin:getWidth()
     self.height = self.skin:getHeight()
 
@@ -17,9 +16,9 @@ end
 
 function Player:update(dt)
     if love.keyboard.isDown('left') then
-        self.dx = -SPEED
+        self.dx = -ROCKET_SPEED
     elseif love.keyboard.isDown('right') then
-        self.dx = SPEED
+        self.dx = ROCKET_SPEED
     else
         self.dx = 0
     end

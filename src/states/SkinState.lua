@@ -3,8 +3,8 @@ SkinState = Class {__includes = BaseState}
 chooseskin = 1
 
 function SkinState:enter(params)
-    self.skin = params.skin
     self.highscores = params.highscores
+    self.skin = skin
 end
 
 function SkinState:update(dt)
@@ -15,30 +15,28 @@ function SkinState:update(dt)
     
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') and chooseskin == 1 then
         sounds['select']:play()
-        self.skin = skins['rocket1']
-        print('skin chosen')
+        skin = skins['rocket1']
     elseif love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') and chooseskin == 2 then
         sounds['select']:play()
-        self.skin = skins['rocket2']
-         print('skin chosen')
+        skin = skins['rocket2']
     elseif love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') and  chooseskin == 3 then
         sounds['select']:play()
-        self.skin = skins['rocket3']
-         print('skin chosen')
+        skin = skins['rocket3']
     elseif love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') and  chooseskin == 4 then
         sounds['select']:play()
-        self.skin = skins['rocket4']
-         print('skin chosen')
+        skin = skins['rocket4']
     end
 
-    if love.keyboard.wasPressed('q') then
+    if love.keyboard.wasPressed('escape') then
         stateMachine:change('start-menu', {
             highscores = self.highscores,
             skin = self.skin
-        })
+            })
     end
 
+
 end
+
 
 
 function SkinState:render()
@@ -78,4 +76,8 @@ function SkinState:render()
     love.graphics.printf('Purple rocket', 0, VIRTUAL_HEIGHT/2 + 115, VIRTUAL_WIDTH, 'center')
 
     love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
+
+    love.graphics.setFont(fonts['small'])
+    love.graphics.printf("Press Escape to return to main menu!",
+        0, VIRTUAL_HEIGHT - 18, VIRTUAL_WIDTH, 'center')
 end
