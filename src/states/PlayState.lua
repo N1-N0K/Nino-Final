@@ -18,6 +18,7 @@ function PlayState:enter(params)
 end
 
 function PlayState:update(dt)
+  print(self.chance)
     if self.paused then 
         if love.keyboard.wasPressed('space') then
             self.paused = false
@@ -41,10 +42,12 @@ function PlayState:update(dt)
 
     if self.chance % 5 == 0 and self.timer >= 4 then
         table.insert(self.rainbowstar, Rainbowstar())
+        self.chance = math.random(1, 100)
         self.timer = 0 
     elseif self.timer >= 4 then
         table.insert(self.star, Star())
         self.timer = 0
+        self.chance = math.random(1, 100)
     end
 
     -- Update objects

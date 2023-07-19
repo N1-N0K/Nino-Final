@@ -74,8 +74,8 @@ function love.load(params)
         ['looping'] = love.audio.newSource('sounds/looping.mp3', 'static')
     }
 
-    sounds['looping']:setLooping(true)
-	sounds['looping']:play()
+    --sounds['looping']:setLooping(true)
+	--sounds['looping']:play()
 
     love.keyboard.keysPressed = {}
 

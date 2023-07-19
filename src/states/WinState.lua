@@ -7,30 +7,30 @@ end
 
 function WinState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-		local highscore = false
-		local scoreIndex = 0
-		
-		for index = 10, 1, -1 do
-			local score = self.highscores[index] or 0
-			if self.score > score then
-				highscoreIndex = index
-				highscore = true
-			end
-		end
-		
-		if highscore then
-			stateMachine:change('enter-highscore', {
-				highscores = self.highscores,
-				score = self.score,
-				scoreIndex = self.scoreIndex
-			})
-		else
-			stateMachine:change('start', {
-				highscores = self.highscores
-			})
-		end
-		
-	end
+        local highscore = false
+        local scoreIndex = 0
+        
+        for index = 10, 1, -1 do
+            local score = self.highscores[index] or 0
+            if self.score > score then
+                scoreIndex = index
+                highscore = true
+            end
+        end
+        
+        if highscore then
+            stateMachine:change('enter-highscore', {
+                highscores = self.highscores,
+                score = self.score,
+                scoreIndex = scoreIndex
+            })
+        else
+            stateMachine:change('start', {
+                highscores = self.highscores
+            })
+        end
+        
+    end
 end
 
 function WinState:render()

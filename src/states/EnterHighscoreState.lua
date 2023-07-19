@@ -12,34 +12,34 @@ local highlightedChar = 1
 function EnterHighscoreState:enter(params)
     self.highscores = params.highscores
     self.score = params.score
-    self.scoreIndex = 1
-    index = 1
+    self.scoreIndex = params.scoreIndex
 end
 
 function EnterHighscoreState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-	sounds['select']:play()
+        sounds['select']:play()
         local name = string.char(chars[1]) .. string.char(chars[2]) .. string.char(chars[3])
 
-        for index = 10, self.scoreIndex, - 1 do
+        for index = 10, self.scoreIndex, -1 do
             self.highscores[index + 1] = {
                 name = self.highscores[index],
                 score = self.highscores[index]
             }
         end
 
-
-        self.highscores[self.scoreIndex] = name
-        self.highscores[self.scoreIndex] = self.score
+        self.highscores[self.scoreIndex] = {
+            name = name,
+            score = self.score
+        }
 
         local scores = ''
 
         for index = 1, 10 do
-            scores = scores .. tostring(self.highscores[index]) .. '\n'
-            scores = scores .. tostring(self.highscores[index]) .. '\n'
+            scores = scores .. tostring(self.highscores[index].name) .. '\n'
+            scores = scores .. tostring(self.highscores[index].score) .. '\n'
         end
 
-        love.filesystem.write('arkanoid.lst', scores)
+        love.filesystem.write('catchthestars.lst', scores)
 
         stateMachine:change('highscores', {
             highscores = self.highscores
@@ -47,21 +47,21 @@ function EnterHighscoreState:update(dt)
     end
 
     if love.keyboard.wasPressed('left') and highlightedChar > 1 then
-	sounds['select']:play()
+        sounds['select']:play()
         highlightedChar = highlightedChar - 1
     elseif love.keyboard.wasPressed('right') and highlightedChar < 3 then
-    	sounds['select']:play()
+        sounds['select']:play()
         highlightedChar = highlightedChar + 1
     end
     
     if love.keyboard.wasPressed('up') then
-	sounds['select']:play()
+        sounds['select']:play()
         chars[highlightedChar] = chars[highlightedChar] + 1
         if chars[highlightedChar] > 90 then
             chars[highlightedChar] = 65
         end
     elseif love.keyboard.wasPressed('down') then
-	sounds['select']:play()
+        sounds['select']:play()
         chars[highlightedChar] = chars[highlightedChar] - 1
         if chars[highlightedChar] < 65 then
             chars[highlightedChar] = 90
